@@ -20,6 +20,8 @@ public interface BusinessCodeResponse {
             new ErrorCodeResponse("SHOP-TOKEN-EXPIRED", "token expired", HttpStatus.UNAUTHORIZED);
     ErrorCodeResponse TOKEN_IN_VALID =
             new ErrorCodeResponse("SHOP-TOKEN-INVALID", "token invalid", HttpStatus.UNAUTHORIZED);
+    ErrorCodeResponse TOKEN =
+            new ErrorCodeResponse("SHOP-TOKEN", "Token expired, Token invalid, Unsupported JWT token, JWT claims string is empty", HttpStatus.UNAUTHORIZED);
 
     /**
      * Exception user

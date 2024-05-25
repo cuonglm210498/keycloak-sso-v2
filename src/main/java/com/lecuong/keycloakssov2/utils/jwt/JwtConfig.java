@@ -1,4 +1,4 @@
-package com.lecuong.keycloakssov2.utils;
+package com.lecuong.keycloakssov2.utils.jwt;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

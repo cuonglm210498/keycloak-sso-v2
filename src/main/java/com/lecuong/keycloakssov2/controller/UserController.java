@@ -24,14 +24,12 @@ public class UserController {
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('user') or hasRole('admin')")
     public ResponseEntity<BaseResponse<User>> findById(@PathVariable Long id) {
-        System.out.println(payload.getName());
         return ResponseEntity.ok(BaseResponse.ofSuccess(userService.findById(id)));
     }
 
     @PostMapping
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<BaseResponse<Void>> save(@RequestBody User user) {
-        System.out.println(payload.getName());
         userService.save(user);
         return ResponseEntity.ok(BaseResponse.ofSuccess(null));
     }
@@ -53,5 +51,10 @@ public class UserController {
     @PreAuthorize("hasRole('user')")
     public ResponseEntity<String> getUserInfoUser() {
         return ResponseEntity.ok("user");
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<String> test() {
+        return ResponseEntity.ok("Test api not authen with token");
     }
 }
