@@ -28,8 +28,6 @@ import java.util.function.Predicate;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
-
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
@@ -38,7 +36,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        final List<String> apiBase = List.of("/api/v1/users/test");
+
+        HttpServletResponse resp = response;
+
+        final List<String> apiBase = List.of(
+                "/api/v1/users/test",
+                "/v2/api-docs",
+                "/configuration/ui",
+                "/swagger-resources",
+                "/configuration/security",
+                "/swagger-ui.html",
+                "/webjars",
+                "/swagger-ui");
+
         Predicate<HttpServletRequest> isApiBase =
                 r -> apiBase
                         .stream()
@@ -46,18 +56,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (isApiBase.test(request)) {
             filterChain.doFilter(request, response);
-            return;
         } else {
-            String jwt = getJwtFromRequest(request);
-            if (StringUtils.hasText(jwt) && jwtTokenProvider.validate(jwt)) {
-                filterChain.doFilter(request, response);
+            String token = getJwtFromRequest(request);
+            if (StringUtils.hasText(token)) {
+                if (Boolean.TRUE.equals(jwtTokenProvider.validate(token))) {
+                    filterChain.doFilter(request, response);
+                } else {
+                    resp.setStatus(HttpStatus.UNAUTHORIZED.value());
+                    BusinessException error = new BusinessException(BusinessCodeResponse.TOKEN);
+                    this.objectMapper.writeValue(resp.getOutputStream(), BaseResponse.ofFail(error));
+                }
             } else {
-                HttpServletResponse resp = response;
                 resp.setStatus(HttpStatus.UNAUTHORIZED.value());
-                BusinessException error = new BusinessException(BusinessCodeResponse.TOKEN);
+                BusinessException error = new BusinessException(BusinessCodeResponse.TOKEN_NOT_EXISTS);
                 this.objectMapper.writeValue(resp.getOutputStream(), BaseResponse.ofFail(error));
             }
-            return;
         }
     }
 
